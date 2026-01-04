@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import { Plus } from "lucide-react";
 import TaskCard from "./TaskCard";
 
-function Column({ column, tasks }) {
+function Column({ column, tasks, onTaskClick, onEditTask, onDeleteTask }) {
   const tasksIds = useMemo(() => {
     return tasks.map((task) => task.id);
   }, [tasks]);
@@ -96,7 +96,7 @@ function Column({ column, tasks }) {
       <div className="flex flex-grow flex-col gap-3 p-4 overflow-x-hidden overflow-y-auto">
         <SortableContext items={tasksIds}>
           {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
+            <TaskCard key={task.id} task={task} onTaskClick={onTaskClick} onEditTask={onEditTask} onDeleteTask={onDeleteTask} />
           ))}
         </SortableContext>
 

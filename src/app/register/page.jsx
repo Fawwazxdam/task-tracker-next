@@ -2,18 +2,20 @@
 
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Eye, EyeOff, BarChart3, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, BarChart3, Mail, Lock, User } from "lucide-react";
 
-export default function LoginPage() {
-  const { login } = useAuth();
+export default function RegisterPage() {
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
-    rememberMe: false,
+    confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleInputChange = (field) => (e) => {
     setFormData((prev) => ({
@@ -22,23 +24,22 @@ export default function LoginPage() {
     }));
   };
 
-  const handleCheckboxChange = (checked) => {
-    setFormData((prev) => ({
-      ...prev,
-      rememberMe: checked,
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await login(formData.email, formData.password);
+      await register(formData.name, formData.email, formData.password);
       // Redirect will be handled by the auth context
     } catch (err) {
-      setError("Failed to log in: " + (err.message || "Unknown error"));
+      setError("Failed to register: " + (err.message || "Unknown error"));
     } finally {
       setLoading(false);
     }
@@ -67,9 +68,9 @@ export default function LoginPage() {
               </div>
 
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 max-w-sm mx-auto">
-                <h3 className="text-lg font-semibold mb-2">Manage Projects Efficiently</h3>
+                <h3 className="text-lg font-semibold mb-2">Join Our Community</h3>
                 <p className="text-sm opacity-90">
-                  Organize tasks, track progress, and collaborate with your team in one beautiful interface.
+                  Create your account and start managing projects efficiently with your team.
                 </p>
               </div>
             </div>
@@ -82,7 +83,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right side - Login Form */}
+      {/* Right side - Register Form */}
       <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           {/* Header */}
@@ -91,14 +92,14 @@ export default function LoginPage() {
               <BarChart3 className="h-8 w-8 text-white" />
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome back 👋
+              Create Account
             </h2>
             <p className="text-gray-600">
-              Sign in to your Merakit account
+              Join Merakit and start collaborating
             </p>
           </div>
 
-          {/* Login Form */}
+          {/* Register Form */}
           <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
@@ -106,6 +107,26 @@ export default function LoginPage() {
                   {error}
                 </div>
               )}
+
+              {/* Name Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={formData.name}
+                    onChange={handleInputChange("name")}
+                    required
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500"
+                  />
+                </div>
+              </div>
 
               {/* Email Field */}
               <div>
@@ -129,24 +150,16 @@ export default function LoginPage() {
 
               {/* Password Field */}
               <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Password
-                  </label>
-                  <a
-                    href="#"
-                    className="text-sm text-amber-600 hover:text-amber-700 transition-colors"
-                  >
-                    Forgot password?
-                  </a>
-                </div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Password
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
+                    placeholder="Create a password"
                     value={formData.password}
                     onChange={handleInputChange("password")}
                     required
@@ -166,19 +179,35 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Remember Me */}
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  checked={formData.rememberMe}
-                  onChange={(e) => handleCheckboxChange(e.target.checked)}
-                  className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                  Remember me
+              {/* Confirm Password Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirm Password
                 </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm your password"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange("confirmPassword")}
+                    required
+                    className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    ) : (
+                      <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               {/* Submit Button */}
@@ -190,10 +219,10 @@ export default function LoginPage() {
                 {loading ? (
                   <div className="flex items-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Signing in...
+                    Creating account...
                   </div>
                 ) : (
-                  "Sign in"
+                  "Create Account"
                 )}
               </button>
             </form>
@@ -201,22 +230,22 @@ export default function LoginPage() {
             {/* Footer */}
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
-                New to Merakit?{" "}
+                Already have an account?{" "}
                 <a
-                  href="/register"
+                  href="/login"
                   className="font-medium text-amber-600 hover:text-amber-700 transition-colors"
                 >
-                  Create an account
+                  Sign in
                 </a>
               </p>
             </div>
           </div>
 
-          {/* Demo Credentials */}
+          {/* Demo Note */}
           <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
-            <h3 className="text-sm font-medium text-amber-900 mb-2">Demo Credentials</h3>
+            <h3 className="text-sm font-medium text-amber-900 mb-2">Demo Registration</h3>
             <p className="text-xs text-amber-700">
-              Use any email and password to sign in. This is a demo application.
+              This is a demo application. Registration will create a demo account.
             </p>
           </div>
         </div>

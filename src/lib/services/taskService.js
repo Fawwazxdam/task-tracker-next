@@ -91,5 +91,25 @@ export const taskService = {
     } catch (error) {
       throw error.response?.data || error;
     }
+  },
+
+  // Get backlog tasks
+  async getBacklog(projectId) {
+    try {
+      const response = await apiClient.get(`/projects/${projectId}/backlog`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // Add task to backlog
+  async addToBacklog(projectId, taskData) {
+    try {
+      const response = await apiClient.post(`/projects/${projectId}/backlog`, taskData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
   }
 };

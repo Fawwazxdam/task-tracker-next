@@ -15,7 +15,7 @@ import Column from "./Column";
 // Data awal untuk simulasi
 const initialColumns = [
   { id: "todo", title: "To Do" },
-  { id: "inProgress", title: "In Progress" },
+  { id: "in_progress", title: "In Progress" },
   { id: "done", title: "Done" },
 ];
 
@@ -40,7 +40,7 @@ const initialTasks = [
   },
   {
     id: 3,
-    columnId: "inProgress",
+    columnId: "in_progress",
     content: "Mengintegrasikan API otentikasi",
     priority: "high",
     dueDate: "Dec 12",
@@ -49,7 +49,7 @@ const initialTasks = [
   },
   {
     id: 4,
-    columnId: "inProgress",
+    columnId: "in_progress",
     content: "Setup environment Next.js",
     priority: "medium",
     dueDate: "Dec 14",
@@ -67,7 +67,7 @@ const initialTasks = [
   },
 ];
 
-function Board({ tasks, onTasksChange }) {
+function Board({ tasks, onTasksChange, onTaskClick, onEditTask, onDeleteTask, onUpdateTaskStatus }) {
   const [columns, setColumns] = useState(initialColumns);
   const [activeTask, setActiveTask] = useState(null);
 
@@ -107,9 +107,7 @@ function Board({ tasks, onTasksChange }) {
 
       // If tasks are in different columns, move the task to the new column
       if (tasks[activeIndex].columnId !== tasks[overIndex].columnId) {
-        // Update task status via API
         const newStatus = tasks[overIndex].columnId;
-        // For now, just update locally - in a full implementation, this would call the API
         const newTasks = [...tasks];
         newTasks[activeIndex] = {
           ...newTasks[activeIndex],
@@ -117,6 +115,9 @@ function Board({ tasks, onTasksChange }) {
           status: newStatus // Keep both for compatibility
         };
         onTasksChange(arrayMove(newTasks, activeIndex, overIndex));
+        // Update status via API
+        const apiStatus = newStatus === 'inProgress' ? 'in_progress' : newStatus;
+        onUpdateTaskStatus && onUpdateTaskStatus(activeId, apiStatus);
       } else {
         // If tasks are in the same column, just reorder
         onTasksChange(arrayMove(tasks, activeIndex, overIndex));
@@ -128,9 +129,7 @@ function Board({ tasks, onTasksChange }) {
       const activeIndex = tasks.findIndex((t) => t.id === activeId);
       if (activeIndex === -1) return;
 
-      // Update task status via API
       const newStatus = overId;
-      // For now, just update locally - in a full implementation, this would call the API
       const newTasks = [...tasks];
       newTasks[activeIndex] = {
         ...newTasks[activeIndex],
@@ -138,6 +137,9 @@ function Board({ tasks, onTasksChange }) {
         status: newStatus // Keep both for compatibility
       };
       onTasksChange(newTasks);
+      // Update status via API
+      const apiStatus = newStatus === 'inProgress' ? 'in_progress' : newStatus;
+      onUpdateTaskStatus && onUpdateTaskStatus(activeId, apiStatus);
     }
   }
 
@@ -161,6 +163,9 @@ function Board({ tasks, onTasksChange }) {
               key={col.id}
               column={col}
               tasks={tasks.filter((task) => task.columnId === col.id)}
+              onTaskClick={onTaskClick}
+              onEditTask={onEditTask}
+              onDeleteTask={onDeleteTask}
             />
           ))}
         </div>

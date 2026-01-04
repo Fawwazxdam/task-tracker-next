@@ -9,7 +9,7 @@ import {
   Menu
 } from "lucide-react";
 
-function Navbar({ onAddTask, searchTerm, onSearchChange, sidebarOpen, setSidebarOpen }) {
+function Navbar({ onAddTask, onAddBacklogTask, searchTerm, onSearchChange, sidebarOpen, setSidebarOpen }) {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="px-4 sm:px-6 lg:px-8">
@@ -38,7 +38,7 @@ function Navbar({ onAddTask, searchTerm, onSearchChange, sidebarOpen, setSidebar
                 placeholder="Search tasks..."
                 value={searchTerm}
                 onChange={(e) => onSearchChange(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
               />
             </div>
 
@@ -47,14 +47,14 @@ function Navbar({ onAddTask, searchTerm, onSearchChange, sidebarOpen, setSidebar
               <Filter className="w-5 h-5" />
             </button>
 
-            {/* Add Task Button */}
-            {onAddTask && (
+            {/* Add Task/Button */}
+            {(onAddTask || onAddBacklogTask) && (
               <button
-                onClick={onAddTask}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
+                onClick={onAddBacklogTask || onAddTask}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all duration-200 shadow-sm hover:shadow-md"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add Task
+                {onAddBacklogTask ? 'Add to Backlog' : 'Add Task'}
               </button>
             )}
           </div>

@@ -2,11 +2,14 @@
 
 "use client";
 
+import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Calendar, User, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 
-function TaskCard({ task }) {
+function TaskCard({ task, onTaskClick, onEditTask, onDeleteTask }) {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   const {
     setNodeRef,
     attributes,
@@ -62,6 +65,7 @@ function TaskCard({ task }) {
       style={style}
       {...attributes}
       {...listeners}
+      onClick={() => !isDragging && onTaskClick && onTaskClick(task)}
       className="bg-white p-4 rounded-xl shadow-sm hover:shadow-lg border border-gray-100 transition-all duration-200 cursor-grab active:cursor-grabbing group"
     >
       {/* Priority indicator */}
@@ -69,9 +73,43 @@ function TaskCard({ task }) {
         <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getPriorityColor(taskData.priority)}`}>
           {taskData.priority.toUpperCase()}
         </span>
-        <button className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-100 rounded transition-opacity">
-          <MoreHorizontal className="w-4 h-4 text-gray-400" />
-        </button>
+        <div className="relative">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsDropdownOpen(!isDropdownOpen);
+            }}
+            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-100 rounded transition-opacity"
+          >
+            <MoreHorizontal className="w-4 h-4 text-gray-400" />
+          </button>
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditTask && onEditTask(task);
+                  setIsDropdownOpen(false);
+                }}
+                className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                <Edit className="w-4 h-4 mr-2" />
+                Edit
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteTask && onDeleteTask(task);
+                  setIsDropdownOpen(false);
+                }}
+                className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-100"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Task content */}
@@ -106,16 +144,6 @@ function TaskCard({ task }) {
             <User className="w-3 h-3" />
             <span>{taskData.assignee}</span>
           </div>
-        </div>
-
-        {/* Action buttons */}
-        <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button className="p-1 hover:bg-gray-100 rounded">
-            <Edit className="w-3 h-3 text-gray-400" />
-          </button>
-          <button className="p-1 hover:bg-red-50 rounded">
-            <Trash2 className="w-3 h-3 text-red-400" />
-          </button>
         </div>
       </div>
     </div>

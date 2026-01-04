@@ -111,3 +111,36 @@ export const useTaskSearch = (projectId, query) => {
     error,
   };
 };
+
+export const useBacklog = (projectId) => {
+  const { data, error, isLoading, mutate } = useSWR(
+    projectId ? `/api/projects/${projectId}/backlog` : null,
+    () => taskService.getBacklog(projectId).then(res => res.data),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 3000,
+    }
+  );
+
+  return {
+    backlogTasks: data || [],
+    isLoading,
+    error,
+    mutate,
+    refetch: () => mutate(),
+    addToBacklog: async (taskData) => {
+      try {
+        const result = await taskService.addToBacklog(projectId, taskData);
+        mutate(); // Refetch backlog
+        return result;
+      } catch (error) {
+        throw error;
+      }
+    },
+    moveFromBacklog: async (taskId) => {
+      // This would typically call a move API, but for now we'll just refetch
+      mutate();
+    }
+  };
+};

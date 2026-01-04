@@ -1,5 +1,7 @@
-// components/Sidebar.jsx
 "use client";
+
+import { useState } from "react";
+// components/Sidebar.jsx
 
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -8,32 +10,63 @@ import {
   Settings,
   User,
   LogOut,
-  X
+  X,
+  ChevronDown,
+  ChevronRight,
+  List,
+  CheckSquare,
+  Users2,
 } from "lucide-react";
 
-function Sidebar({ sidebarOpen, setSidebarOpen, currentPage = "tasks" }) {
+function Sidebar({
+  sidebarOpen,
+  setSidebarOpen,
+  currentPage = "tasks",
+  currentProject = null,
+  currentProjectPage = null,
+}) {
   const { currentUser, logout } = useAuth();
+  const [projectMenuExpanded, setProjectMenuExpanded] = useState(true);
 
   const handleLogout = async () => {
     await logout();
   };
 
   const navigation = [
-    { name: "Dashboard", href: "/dashboard", icon: Home, current: currentPage === "dashboard" },
-    { name: "Projects", href: "/project", icon: BarChart3, current: currentPage === "projects" },
-    { name: "Settings", href: "/settings", icon: Settings, current: currentPage === "settings" },
+    {
+      name: "Dashboard",
+      href: "/dashboard",
+      icon: Home,
+      current: currentPage === "dashboard",
+    },
+    {
+      name: "Projects",
+      href: "/project",
+      icon: BarChart3,
+      current: currentPage === "projects",
+    },
+    {
+      name: "Settings",
+      href: "/settings",
+      icon: Settings,
+      current: currentPage === "settings",
+    },
   ];
 
   return (
     <>
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 flex flex-col ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <div
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 flex flex-col ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}
+      >
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-r from-amber-600 to-orange-600 rounded-lg flex items-center justify-center">
               <BarChart3 className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">TaskFlow</span>
+            <span className="text-xl font-bold text-gray-900">Merakit</span>
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
@@ -46,20 +79,85 @@ function Sidebar({ sidebarOpen, setSidebarOpen, currentPage = "tasks" }) {
         <nav className="mt-8 px-4 flex-1 overflow-y-auto">
           <div className="space-y-2">
             {navigation.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                  item.current
-                    ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
-              >
-                <item.icon className={`mr-3 h-5 w-5 ${
-                  item.current ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-500'
-                }`} />
-                {item.name}
-              </a>
+              <div key={item.name}>
+                <a
+                  href={item.href}
+                  className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    item.current
+                      ? "bg-amber-50 text-amber-700 border-r-2 border-amber-600"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  }`}
+                >
+                  <item.icon
+                    className={`mr-3 h-5 w-5 ${
+                      item.current
+                        ? "text-amber-600"
+                        : "text-gray-400 group-hover:text-gray-500"
+                    }`}
+                  />
+                  {item.name}
+                </a>
+
+                {/* Project Menu - shown after Projects */}
+                {item.name === "Projects" && currentProject && (
+                  <div className="mt-2 ml-4">
+                    <button
+                      onClick={() =>
+                        setProjectMenuExpanded(!projectMenuExpanded)
+                      }
+                      className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <BarChart3 className="w-4 h-4 text-amber-600" />
+                        <span className="truncate">{currentProject.name}</span>
+                      </div>
+                      {projectMenuExpanded ? (
+                        <ChevronDown className="w-4 h-4 text-gray-500" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-gray-500" />
+                      )}
+                    </button>
+
+                    {projectMenuExpanded && (
+                      <div className="mt-2 ml-4 space-y-1">
+                        <a
+                          href={`/project/${currentProject.uuid}/task`}
+                          className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                            currentProjectPage === "task"
+                              ? "bg-amber-50 text-amber-700 border-r-2 border-amber-600"
+                              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                          }`}
+                        >
+                          <CheckSquare className="mr-3 h-4 w-4 text-gray-400 group-hover:text-gray-500" />
+                          Tasks
+                        </a>
+                        <a
+                          href={`/project/${currentProject.uuid}/backlog`}
+                          className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                            currentProjectPage === "backlog"
+                              ? "bg-amber-50 text-amber-700 border-r-2 border-amber-600"
+                              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                          }`}
+                        >
+                          <List className="mr-3 h-4 w-4 text-gray-400 group-hover:text-gray-500" />
+                          Backlog
+                        </a>
+                        <a
+                          href={`/project/${currentProject.uuid}/members`}
+                          className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                            currentProjectPage === "members"
+                              ? "bg-amber-50 text-amber-700 border-r-2 border-amber-600"
+                              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                          }`}
+                        >
+                          <Users2 className="mr-3 h-4 w-4 text-gray-400 group-hover:text-gray-500" />
+                          Members
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </nav>
