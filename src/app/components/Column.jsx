@@ -24,27 +24,27 @@ function Column({ column, tasks, onTaskClick, onEditTask, onDeleteTask }) {
     switch (columnId) {
       case 'todo':
         return {
-          bg: 'bg-gradient-to-br from-blue-50 to-blue-100',
+          bg: 'bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800',
           header: 'bg-gradient-to-r from-blue-500 to-blue-600',
-          border: 'border-blue-200'
+          border: 'border-blue-200 dark:border-blue-700'
         };
       case 'inProgress':
         return {
-          bg: 'bg-gradient-to-br from-yellow-50 to-orange-100',
+          bg: 'bg-gradient-to-br from-yellow-50 to-orange-100 dark:from-yellow-900 dark:to-orange-800',
           header: 'bg-gradient-to-r from-yellow-500 to-orange-500',
-          border: 'border-yellow-200'
+          border: 'border-yellow-200 dark:border-yellow-700'
         };
       case 'done':
         return {
-          bg: 'bg-gradient-to-br from-green-50 to-emerald-100',
+          bg: 'bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900 dark:to-emerald-800',
           header: 'bg-gradient-to-r from-green-500 to-emerald-600',
-          border: 'border-green-200'
+          border: 'border-green-200 dark:border-green-700'
         };
       default:
         return {
-          bg: 'bg-gradient-to-br from-gray-50 to-gray-100',
+          bg: 'bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700',
           header: 'bg-gradient-to-r from-gray-500 to-gray-600',
-          border: 'border-gray-200'
+          border: 'border-gray-200 dark:border-gray-600'
         };
     }
   };
@@ -102,8 +102,8 @@ function Column({ column, tasks, onTaskClick, onEditTask, onDeleteTask }) {
 
         {/* Empty state */}
         {tasks.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-8 text-gray-400">
-            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+          <div className="flex flex-col items-center justify-center py-8 text-gray-400 dark:text-gray-500">
+            <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-3">
               <Plus className="w-6 h-6" />
             </div>
             <p className="text-sm text-center">No tasks yet</p>

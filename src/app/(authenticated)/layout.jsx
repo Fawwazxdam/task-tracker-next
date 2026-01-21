@@ -1,12 +1,13 @@
 // src/app/(authenticated)/layout.jsx
-"use client";
-
+'use client';
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext"; // Import dari context
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 
 export default function AuthenticatedLayout({ children }) {
   const { currentUser, loading } = useAuth();
+  const { theme } = useTheme(); // Gunakan hook dari context
   const router = useRouter();
 
   useEffect(() => {
@@ -15,7 +16,7 @@ export default function AuthenticatedLayout({ children }) {
     }
   }, [currentUser, loading, router]);
 
-  // Show loading state while checking authentication
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -27,10 +28,9 @@ export default function AuthenticatedLayout({ children }) {
     );
   }
 
-  // Don't render anything if not authenticated (will redirect)
   if (!currentUser) {
     return null;
   }
 
-  return <>{children}</>;
+  return children;
 }

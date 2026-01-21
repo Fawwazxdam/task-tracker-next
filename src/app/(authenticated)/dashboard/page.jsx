@@ -1,51 +1,129 @@
 // src/app/dashboard/page.jsx
 "use client";
 
+import { useState, useEffect } from "react";
 import AppLayout from "@/app/components/AppLayout";
 import { useAuth } from "@/context/AuthContext";
 // import AppLayout from "../components/AppLayout";
 import { BarChart3, CheckCircle, Clock, AlertCircle } from "lucide-react";
+import apiClient from "@/lib/axios";
+
 export default function Dashboard() {
   const { currentUser } = useAuth();
+  const [stats, setStats] = useState([]);
+  const [recentTasks, setRecentTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock dashboard data
-  const stats = [
-    {
-      title: "Total Tasks",
-      value: "24",
-      icon: BarChart3,
-      color: "bg-blue-500",
-      change: "+12%"
-    },
-    {
-      title: "Completed",
-      value: "18",
-      icon: CheckCircle,
-      color: "bg-green-500",
-      change: "+8%"
-    },
-    {
-      title: "In Progress",
-      value: "4",
-      icon: Clock,
-      color: "bg-yellow-500",
-      change: "+2"
-    },
-    {
-      title: "Overdue",
-      value: "2",
-      icon: AlertCircle,
-      color: "bg-red-500",
-      change: "-1"
-    }
-  ];
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const [statsResponse, tasksResponse] = await Promise.all([
+          apiClient.get('/dashboard/stats'),
+          apiClient.get('/dashboard/recent-tasks?limit=5')
+        ]);
 
-  const recentTasks = [
-    { id: 1, title: "Design login page UI/UX", status: "completed", priority: "high" },
-    { id: 2, title: "Integrate authentication API", status: "in-progress", priority: "high" },
-    { id: 3, title: "Setup Next.js environment", status: "completed", priority: "medium" },
-    { id: 4, title: "Create reusable components", status: "in-progress", priority: "medium" },
-  ];
+        // Transform stats data
+        const statsData = statsResponse.data.data;
+        const transformedStats = [
+          {
+            title: "Total Tasks",
+            value: statsData.total_tasks.toString(),
+            icon: BarChart3,
+            color: "bg-blue-500",
+            change: "+0%" // You can calculate this based on previous data
+          },
+          {
+            title: "Completed",
+            value: statsData.completed.toString(),
+            icon: CheckCircle,
+            color: "bg-green-500",
+            change: "+0%"
+          },
+          {
+            title: "In Progress",
+            value: statsData.in_progress.toString(),
+            icon: Clock,
+            color: "bg-yellow-500",
+            change: "+0"
+          },
+          {
+            title: "Overdue",
+            value: statsData.overdue.toString(),
+            icon: AlertCircle,
+            color: "bg-red-500",
+            change: "+0"
+          }
+        ];
+
+        setStats(transformedStats);
+        setRecentTasks(tasksResponse.data.data);
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+        // Fallback to mock data if API fails
+        setStats([
+          {
+            title: "Total Tasks",
+            value: "0",
+            icon: BarChart3,
+            color: "bg-blue-500",
+            change: "+0%"
+          },
+          {
+            title: "Completed",
+            value: "0",
+            icon: CheckCircle,
+            color: "bg-green-500",
+            change: "+0%"
+          },
+          {
+            title: "In Progress",
+            value: "0",
+            icon: Clock,
+            color: "bg-yellow-500",
+            change: "+0"
+          },
+          {
+            title: "Overdue",
+            value: "0",
+            icon: AlertCircle,
+            color: "bg-red-500",
+            change: "+0"
+          }
+        ]);
+        setRecentTasks([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <AppLayout currentPage="dashboard" showNavbar={false}>
+        <div className="space-y-6">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded w-1/3 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-20 mb-2"></div>
+                  <div className="h-8 bg-gray-200 rounded w-12 mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-24"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout currentPage="dashboard" showNavbar={false}>
@@ -86,17 +164,21 @@ export default function Dashboard() {
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Tasks</h2>
           <div className="space-y-3">
-            {recentTasks.map((task) => (
+            {recentTasks.length > 0 ? recentTasks.map((task) => (
               <div key={task.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <div className={`w-3 h-3 rounded-full ${
-                    task.status === 'completed' ? 'bg-green-500' :
-                    task.status === 'in-progress' ? 'bg-yellow-500' : 'bg-gray-400'
+                    task.status === 'done' ? 'bg-green-500' :
+                    task.status === 'in_progress' ? 'bg-yellow-500' : 'bg-gray-400'
                   }`} />
-                  <span className="text-gray-900 font-medium">{task.title}</span>
+                  <div>
+                    <span className="text-gray-900 font-medium">{task.title}</span>
+                    <p className="text-sm text-gray-500">{task.project_name}</p>
+                  </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                    task.priority === 'critical' ? 'bg-red-100 text-red-800' :
                     task.priority === 'high' ? 'bg-red-100 text-red-800' :
                     task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
                     'bg-green-100 text-green-800'
@@ -104,15 +186,17 @@ export default function Dashboard() {
                     {task.priority}
                   </span>
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    task.status === 'completed' ? 'bg-green-100 text-green-800' :
-                    task.status === 'in-progress' ? 'bg-yellow-100 text-yellow-800' :
+                    task.status === 'done' ? 'bg-green-100 text-green-800' :
+                    task.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
                     'bg-gray-100 text-gray-800'
                   }`}>
-                    {task.status.replace('-', ' ')}
+                    {task.status.replace('_', ' ')}
                   </span>
                 </div>
               </div>
-            ))}
+            )) : (
+              <p className="text-gray-500 text-center py-4">No recent tasks found.</p>
+            )}
           </div>
         </div>
 

@@ -45,12 +45,12 @@ function Sidebar({
       icon: BarChart3,
       current: currentPage === "projects",
     },
-    {
-      name: "Settings",
-      href: "/settings",
-      icon: Settings,
-      current: currentPage === "settings",
-    },
+    // {
+    //   name: "Settings",
+    //   href: "/settings",
+    //   icon: Settings,
+    //   current: currentPage === "settings",
+    // },
   ];
 
   return (

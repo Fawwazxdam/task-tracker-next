@@ -3,6 +3,7 @@
 import { useState } from "react";
 import AppLayout from "@/app/components/AppLayout";
 import { Settings, User, Palette, FolderOpen, Bell, Shield, Globe } from "lucide-react";
+import { useTheme } from "@/lib/hooks/useTheme";
 
 const tabs = [
   { id: "general", label: "General", icon: Settings },
@@ -173,6 +174,12 @@ function AccountSettings() {
 }
 
 function PreferencesSettings() {
+  const { theme, setTheme } = useTheme();
+
+  const handleThemeChange = (e) => {
+    setTheme(e.target.value);
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -184,15 +191,36 @@ function PreferencesSettings() {
             </label>
             <div className="flex space-x-4">
               <label className="flex items-center">
-                <input type="radio" name="theme" value="light" defaultChecked className="text-amber-600 focus:ring-amber-500" />
+                <input
+                  type="radio"
+                  name="theme"
+                  value="light"
+                  checked={theme === 'light'}
+                  onChange={handleThemeChange}
+                  className="text-amber-600 focus:ring-amber-500"
+                />
                 <span className="ml-2">Light</span>
               </label>
               <label className="flex items-center">
-                <input type="radio" name="theme" value="dark" className="text-amber-600 focus:ring-amber-500" />
+                <input
+                  type="radio"
+                  name="theme"
+                  value="dark"
+                  checked={theme === 'dark'}
+                  onChange={handleThemeChange}
+                  className="text-amber-600 focus:ring-amber-500"
+                />
                 <span className="ml-2">Dark</span>
               </label>
               <label className="flex items-center">
-                <input type="radio" name="theme" value="auto" className="text-amber-600 focus:ring-amber-500" />
+                <input
+                  type="radio"
+                  name="theme"
+                  value="auto"
+                  checked={theme === 'auto'}
+                  onChange={handleThemeChange}
+                  className="text-amber-600 focus:ring-amber-500"
+                />
                 <span className="ml-2">Auto</span>
               </label>
             </div>

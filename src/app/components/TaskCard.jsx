@@ -41,10 +41,10 @@ function TaskCard({ task, onTaskClick, onEditTask, onDeleteTask }) {
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'high': return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300 border-red-200 dark:border-red-700';
+      case 'medium': return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-700';
+      case 'low': return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 border-green-200 dark:border-green-700';
+      default: return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-600';
     }
   };
 
@@ -54,7 +54,7 @@ function TaskCard({ task, onTaskClick, onEditTask, onDeleteTask }) {
       <div
         ref={setNodeRef}
         style={style}
-        className="opacity-50 bg-white p-4 rounded-xl border-2 border-blue-400 shadow-lg"
+        className="opacity-50 bg-white dark:bg-gray-800 p-4 rounded-xl border-2 border-blue-400 shadow-lg"
       />
     );
   }
@@ -66,7 +66,7 @@ function TaskCard({ task, onTaskClick, onEditTask, onDeleteTask }) {
       {...attributes}
       {...listeners}
       onClick={() => !isDragging && onTaskClick && onTaskClick(task)}
-      className="bg-white p-4 rounded-xl shadow-sm hover:shadow-lg border border-gray-100 transition-all duration-200 cursor-grab active:cursor-grabbing group"
+      className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm hover:shadow-lg border border-gray-100 dark:border-gray-700 transition-all duration-200 cursor-grab active:cursor-grabbing group"
     >
       {/* Priority indicator */}
       <div className="flex items-center justify-between mb-3">
@@ -79,19 +79,19 @@ function TaskCard({ task, onTaskClick, onEditTask, onDeleteTask }) {
               e.stopPropagation();
               setIsDropdownOpen(!isDropdownOpen);
             }}
-            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-100 rounded transition-opacity"
+            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-opacity"
           >
             <MoreHorizontal className="w-4 h-4 text-gray-400" />
           </button>
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+            <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-10">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onEditTask && onEditTask(task);
                   setIsDropdownOpen(false);
                 }}
-                className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="flex items-center w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <Edit className="w-4 h-4 mr-2" />
                 Edit
@@ -102,7 +102,7 @@ function TaskCard({ task, onTaskClick, onEditTask, onDeleteTask }) {
                   onDeleteTask && onDeleteTask(task);
                   setIsDropdownOpen(false);
                 }}
-                className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-100"
+                className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-100 dark:hover:bg-red-900"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Delete
@@ -113,7 +113,7 @@ function TaskCard({ task, onTaskClick, onEditTask, onDeleteTask }) {
       </div>
 
       {/* Task content */}
-      <h4 className="text-gray-900 font-medium mb-2 leading-tight">
+      <h4 className="text-gray-900 dark:text-white font-medium mb-2 leading-tight">
         {task.content}
       </h4>
 
@@ -123,7 +123,7 @@ function TaskCard({ task, onTaskClick, onEditTask, onDeleteTask }) {
           {taskData.labels.map((label, index) => (
             <span
               key={index}
-              className="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-md"
+              className="px-2 py-1 text-xs bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-md"
             >
               {label}
             </span>
@@ -132,7 +132,7 @@ function TaskCard({ task, onTaskClick, onEditTask, onDeleteTask }) {
       )}
 
       {/* Task metadata */}
-      <div className="flex items-center justify-between text-xs text-gray-500">
+      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
         <div className="flex items-center space-x-3">
           {taskData.dueDate && (
             <div className="flex items-center space-x-1">

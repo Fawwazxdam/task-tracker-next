@@ -36,7 +36,12 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      await register(formData.name, formData.email, formData.password);
+      await register({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        password_confirmation: formData.confirmPassword,
+      });
       // Redirect will be handled by the auth context
     } catch (err) {
       setError("Failed to register: " + (err.message || "Unknown error"));
