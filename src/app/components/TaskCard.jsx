@@ -7,8 +7,9 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Calendar, User, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 
-function TaskCard({ task, onTaskClick, onEditTask, onDeleteTask }) {
+function TaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onUpdateAssignee, projectMembers }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isAssigneeDropdownOpen, setIsAssigneeDropdownOpen] = useState(false);
 
   const {
     setNodeRef,
@@ -58,6 +59,14 @@ function TaskCard({ task, onTaskClick, onEditTask, onDeleteTask }) {
       />
     );
   }
+
+  const handleAssigneeChange = (e) => {
+    const newAssigneeId = e.target.value;
+    if (onUpdateAssignee) {
+      onUpdateAssignee(task.id, newAssigneeId);
+    }
+    setIsAssigneeDropdownOpen(false);
+  };
 
   return (
     <div
@@ -142,7 +151,34 @@ function TaskCard({ task, onTaskClick, onEditTask, onDeleteTask }) {
           )}
           <div className="flex items-center space-x-1">
             <User className="w-3 h-3" />
-            <span>{taskData.assignee}</span>
+            <div className="relative">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsAssigneeDropdownOpen(!isAssigneeDropdownOpen);
+                }}
+                className="hover:text-blue-600 transition-colors"
+              >
+                <span>{taskData.assignee}</span>
+              </button>
+              {isAssigneeDropdownOpen && projectMembers && (
+                <div className="absolute left-0 mt-1 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-20 max-h-32 overflow-y-auto">
+                  <select
+                    value={task.assignee_id || ""}
+                    onChange={handleAssigneeChange}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-full px-2 py-1 text-sm bg-transparent border-none focus:ring-0 text-gray-700 dark:text-gray-300"
+                  >
+                    <option value="">Unassigned</option>
+                    {projectMembers.map(member => (
+                      <option key={member.id} value={member.id}>
+                        {member.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

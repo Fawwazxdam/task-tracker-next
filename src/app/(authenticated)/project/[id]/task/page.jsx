@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import AppLayout from "../../../../components/AppLayout";
 import Board from "../../../../components/Board";
 import { ArrowLeft, Calendar, Users, CheckCircle, Clock, AlertCircle, X } from "lucide-react";
-import { useProject, useProjects, useProjectStats } from "@/lib/hooks/useProjects";
+import { useProject, useProjects, useProjectStats, useProjectMembers } from "@/lib/hooks/useProjects";
 import { useTasks } from "@/lib/hooks/useTasks";
 export default function ProjectTaskPage() {
   const params = useParams();
@@ -24,6 +24,9 @@ export default function ProjectTaskPage() {
   // Fetch tasks data
   const { tasks: apiTasks, isLoading: tasksLoading, createTask, updateTask, updateTaskStatus, deleteTask } = useTasks(projectId);
 
+  // Fetch project members for assign dropdown
+  const { members: projectMembers } = useProjectMembers(projectId);
+
   // Local state for tasks that can be updated by drag and drop
   const [tasks, setTasks] = useState([]);
 
@@ -31,7 +34,8 @@ export default function ProjectTaskPage() {
     title: "",
     description: "",
     priority: "medium",
-    type: "feature"
+    type: "feature",
+    assignee_id: ""
   });
 
   const [editTask, setEditTask] = useState({
@@ -53,6 +57,7 @@ export default function ProjectTaskPage() {
         priority: task.priority,
         dueDate: task.due_date,
         assignee: task.assignee?.name || "Unassigned",
+        assignee_id: task.user_id,
         labels: [task.type]
       }));
       setTasks(transformedTasks);
@@ -99,16 +104,27 @@ export default function ProjectTaskPage() {
     }
   };
 
+  const handleUpdateAssignee = async (taskId, assigneeId) => {
+    try {
+      await updateTask(taskId, { user_id: assigneeId || null });
+    } catch (error) {
+      console.error("Failed to update assignee:", error);
+    }
+  };
+
   const handleTaskSubmit = async (e) => {
     e.preventDefault();
     try {
-      const newTaskData = await createTask({
+      const taskData = {
         title: newTask.title,
         description: newTask.description,
         type: newTask.type,
         status: "todo",
-        priority: newTask.priority
-      });
+        priority: newTask.priority,
+        user_id: newTask.assignee_id || null
+      };
+      
+      const newTaskData = await createTask(taskData);
 
       // Add the new task to local state
       const transformedNewTask = {
@@ -119,6 +135,7 @@ export default function ProjectTaskPage() {
         priority: newTaskData.data.priority,
         dueDate: newTaskData.data.due_date,
         assignee: newTaskData.data.assignee?.name || "Unassigned",
+        assignee_id: newTaskData.data.user_id,
         labels: [newTaskData.data.type]
       };
 
@@ -129,7 +146,8 @@ export default function ProjectTaskPage() {
         title: "",
         description: "",
         priority: "medium",
-        type: "feature"
+        type: "feature",
+        assignee_id: ""
       });
     } catch (error) {
       console.error("Failed to create task:", error);
@@ -256,6 +274,8 @@ export default function ProjectTaskPage() {
           onEditTask={handleEditTask}
           onDeleteTask={handleDeleteTask}
           onUpdateTaskStatus={updateTaskStatus}
+          projectMembers={projectMembers}
+          onUpdateAssignee={handleUpdateAssignee}
         />
 
         {/* Add Task Modal */}
@@ -335,6 +355,24 @@ export default function ProjectTaskPage() {
                           <option value="critical">Critical</option>
                         </select>
                       </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-black mb-1">
+                        Assign To
+                      </label>
+                      <select
+                        value={newTask.assignee_id}
+                        onChange={(e) => setNewTask({...newTask, assignee_id: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                      >
+                        <option value="">Unassigned</option>
+                        {projectMembers.map(member => (
+                          <option key={member.id} value={member.id}>
+                            {member.name} ({member.email})
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
 

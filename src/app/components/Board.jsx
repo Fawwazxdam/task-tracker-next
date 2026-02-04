@@ -67,7 +67,7 @@ const initialTasks = [
   },
 ];
 
-function Board({ tasks, onTasksChange, onTaskClick, onEditTask, onDeleteTask, onUpdateTaskStatus }) {
+function Board({ tasks, onTasksChange, onTaskClick, onEditTask, onDeleteTask, onUpdateTaskStatus, projectMembers, onUpdateAssignee }) {
   const [columns, setColumns] = useState(initialColumns);
   const [activeTask, setActiveTask] = useState(null);
 
@@ -166,6 +166,8 @@ function Board({ tasks, onTasksChange, onTaskClick, onEditTask, onDeleteTask, on
               onTaskClick={onTaskClick}
               onEditTask={onEditTask}
               onDeleteTask={onDeleteTask}
+              projectMembers={projectMembers}
+              onUpdateAssignee={onUpdateAssignee}
             />
           ))}
         </div>

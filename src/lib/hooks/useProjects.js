@@ -84,3 +84,33 @@ export const useProjectStats = (projectId) => {
     error,
   };
 };
+
+export const useProjectMembers = (projectId) => {
+  const { data, error, isLoading, mutate } = useSWR(
+    projectId ? `/api/projects/${projectId}/members` : null,
+    () => projectService.getProjectMembers(projectId).then(res => res.data),
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 10000,
+    }
+  );
+
+  const addMembers = async (userIds, role = 'member') => {
+    try {
+      const result = await projectService.addProjectMembers(projectId, userIds, role);
+      mutate(); // Refetch members
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  };
+  console.log("Members hooks:", data);
+
+  return {
+    members: data || [],
+    isLoading,
+    error,
+    mutate,
+    addMembers,
+  };
+};

@@ -80,5 +80,29 @@ export const projectService = {
     } catch (error) {
       throw error.response?.data || error;
     }
+  },
+
+  // Get project members
+  async getProjectMembers(projectId) {
+    try {
+      const response = await apiClient.get(`/projects/${projectId}/members`);
+      console.log("Project members SERVICE:", response.data);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // Add members to project
+  async addProjectMembers(projectId, userIds, role = 'member') {
+    try {
+      const response = await apiClient.post(`/projects/${projectId}/members`, {
+        user_ids: userIds,
+        role: role
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
   }
 };

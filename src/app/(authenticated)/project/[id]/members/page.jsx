@@ -4,54 +4,56 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import AppLayout from "../../../../components/AppLayout";
-import { ArrowLeft, Users, UserPlus, Mail, Trash2, Crown } from "lucide-react";
-import { useProject, useProjects } from "@/lib/hooks/useProjects";
+import { ArrowLeft, Users, UserPlus, Mail, Trash2, Crown, Search, Check } from "lucide-react";
+import { useProject, useProjectMembers } from "@/lib/hooks/useProjects";
+import { useUsers } from "@/lib/hooks/useUsers";
 
 export default function ProjectMembersPage() {
   const params = useParams();
   const projectId = params.id;
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedUsers, setSelectedUsers] = useState([]);
 
   // Fetch project data
-  const { project, isLoading: projectLoading, error: projectError } = useProject(projectId);
+  const { project, isLoading: projectLoading } = useProject(projectId);
 
-  // Mock members data - in a real app, this would come from API
-  const [members, setMembers] = useState([
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-      role: "owner",
-      joined_at: "2024-01-01"
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      role: "member",
-      joined_at: "2024-01-15"
-    }
-  ]);
+  // Fetch users (only when modal is open)
+  const { users, isLoading: isLoadingUsers } = useUsers();
 
-  const handleInviteMember = async (e) => {
-    e.preventDefault();
-    // Mock invitation - in real app, this would call API
-    const newMember = {
-      id: Date.now(),
-      name: inviteEmail.split('@')[0],
-      email: inviteEmail,
-      role: "member",
-      joined_at: new Date().toISOString().split('T')[0]
-    };
-    setMembers(prev => [...prev, newMember]);
-    setInviteEmail("");
-    setShowInviteModal(false);
+  // Fetch project members
+  const { members, mutate, addMembers } = useProjectMembers(projectId);
+
+  // Filter users based on search and exclude existing members
+  const availableUsers = users.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          user.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const isNotMember = members.some(m => m.email === user.email);
+    return matchesSearch && !isNotMember;
+  });
+
+  const toggleUserSelection = (user) => {
+    setSelectedUsers(prev => {
+      const isSelected = prev.some(u => u.id === user.id);
+      if (isSelected) {
+        return prev.filter(u => u.id !== user.id);
+      }
+      return [...prev, user];
+    });
   };
 
-  const handleRemoveMember = (memberId) => {
+  const handleInviteMembers = async () => {
+    const userIds = selectedUsers.map(u => u.id);
+    await addMembers(userIds);
+    setSelectedUsers([]);
+    setShowInviteModal(false);
+    setSearchQuery("");
+  };
+
+  const handleRemoveMember = async (memberId) => {
     if (confirm("Are you sure you want to remove this member?")) {
-      setMembers(prev => prev.filter(m => m.id !== memberId));
+      // In a real app, call API to remove member
+      mutate();
     }
   };
 
@@ -68,6 +70,16 @@ export default function ProjectMembersPage() {
       default: return 'bg-blue-100 text-blue-800 border-blue-200';
     }
   };
+
+  if (projectLoading) {
+    return (
+      <AppLayout currentPage="projects" currentProjectPage="members">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout
@@ -125,40 +137,40 @@ export default function ProjectMembersPage() {
           </div>
 
           <div className="p-6">
-            <div className="space-y-4">
-              {members.map((member) => (
-                <div key={member.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center">
-                      <span className="text-white font-medium text-sm">
-                        {member.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                      </span>
-                    </div>
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <h3 className="font-medium text-gray-900">{member.name}</h3>
-                        {getRoleIcon(member.role)}
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getRoleBadge(member.role)}`}>
-                          {member.role}
+            {members.length > 0 ? (
+              <div className="space-y-4">
+                {members.map((member) => (
+                  <div key={member.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center">
+                        <span className="text-white font-medium text-sm">
+                          {member.name ? member.name.split(' ').map(n => n[0]).join('').toUpperCase() : '?'}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600">{member.email}</p>
-                      <p className="text-xs text-gray-500">Joined {new Date(member.joined_at).toLocaleDateString()}</p>
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <h3 className="font-medium text-gray-900">{member.name || 'Unknown'}</h3>
+                          {getRoleIcon(member.pivot?.role || member.role)}
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getRoleBadge(member.pivot?.role || member.role)}`}>
+                            {member.pivot?.role || member.role}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600">{member.email}</p>
+                        <p className="text-xs text-gray-500">Joined {member.pivot?.created_at ? new Date(member.pivot.created_at).toLocaleDateString() : 'N/A'}</p>
+                      </div>
                     </div>
+                    {(member.pivot?.role !== 'owner' && member.role !== 'owner') && (
+                      <button
+                        onClick={() => handleRemoveMember(member.id)}
+                        className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
-                  {member.role !== 'owner' && (
-                    <button
-                      onClick={() => handleRemoveMember(member.id)}
-                      className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {members.length === 0 && (
+                ))}
+              </div>
+            ) : (
               <div className="text-center py-8 text-gray-500">
                 <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                 <p>No members yet</p>
@@ -171,52 +183,114 @@ export default function ProjectMembersPage() {
         {/* Invite Member Modal */}
         {showInviteModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="fixed inset-0 bg-gray-900 opacity-70" onClick={() => setShowInviteModal(false)} />
+            <div className="fixed inset-0 bg-gray-900 opacity-70" onClick={() => {
+              setShowInviteModal(false);
+              setSelectedUsers([]);
+              setSearchQuery("");
+            }} />
             <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-medium text-black">Invite Team Member</h3>
                   <button
-                    onClick={() => setShowInviteModal(false)}
+                    onClick={() => {
+                      setShowInviteModal(false);
+                      setSelectedUsers([]);
+                      setSearchQuery("");
+                    }}
                     className="text-gray-400 hover:text-gray-600"
                   >
                     <span><Mail className="w-6 h-6" /></span>
                   </button>
                 </div>
 
-                <form onSubmit={handleInviteMember}>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-black mb-1">
-                        Email Address
-                      </label>
-                      <input
-                        type="email"
-                        value={inviteEmail}
-                        onChange={(e) => setInviteEmail(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-black"
-                        placeholder="Enter email address"
-                        required
-                      />
-                    </div>
-                  </div>
+                {/* Search Input */}
+                <div className="relative mb-4">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-black"
+                    placeholder="Search users by name or email"
+                  />
+                </div>
 
-                  <div className="flex justify-end space-x-3 mt-6">
-                    <button
-                      type="button"
-                      onClick={() => setShowInviteModal(false)}
-                      className="px-4 py-2 text-sm font-medium text-black bg-gray-100 rounded-lg hover:bg-gray-200"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700"
-                    >
-                      Send Invitation
-                    </button>
-                  </div>
-                </form>
+                {/* Users List */}
+                <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg">
+                  {isLoadingUsers ? (
+                    <div className="p-4 text-center text-gray-500">
+                      Loading users...
+                    </div>
+                  ) : availableUsers.length === 0 ? (
+                    <div className="p-4 text-center text-gray-500">
+                      No users found
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-gray-100">
+                      {availableUsers.map((user) => {
+                        const isSelected = selectedUsers.some(u => u.id === user.id);
+                        return (
+                          <div
+                            key={user.id}
+                            onClick={() => toggleUserSelection(user)}
+                            className={`p-3 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors ${
+                              isSelected ? 'bg-amber-50' : ''
+                            }`}
+                          >
+                            <div className="flex items-center space-x-3">
+                              <div className="w-8 h-8 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center">
+                                <span className="text-white font-medium text-xs">
+                                  {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                                </span>
+                              </div>
+                              <div>
+                                <p className="font-medium text-gray-900">{user.name}</p>
+                                <p className="text-sm text-gray-500">{user.email}</p>
+                              </div>
+                            </div>
+                            {isSelected && (
+                              <Check className="w-5 h-5 text-amber-600" />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* Selected Count */}
+                {selectedUsers.length > 0 && (
+                  <p className="text-sm text-gray-600 mt-2">
+                    {selectedUsers.length} user(s) selected
+                  </p>
+                )}
+
+                {/* Actions */}
+                <div className="flex justify-end space-x-3 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowInviteModal(false);
+                      setSelectedUsers([]);
+                      setSearchQuery("");
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-black bg-gray-100 rounded-lg hover:bg-gray-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleInviteMembers}
+                    disabled={selectedUsers.length === 0}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      selectedUsers.length > 0
+                        ? 'text-white bg-amber-600 hover:bg-amber-700'
+                        : 'text-gray-400 bg-gray-200 cursor-not-allowed'
+                    }`}
+                  >
+                    Add Member{selectedUsers.length > 1 ? 's' : ''}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
