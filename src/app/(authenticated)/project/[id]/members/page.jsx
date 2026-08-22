@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import AppLayout from "../../../../components/AppLayout";
 import { ArrowLeft, Users, UserPlus, Mail, Trash2, Crown, Search, Check } from "lucide-react";
 import { useProject, useProjectMembers } from "@/lib/hooks/useProjects";
@@ -92,13 +93,13 @@ export default function ProjectMembersPage() {
         {project && (
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div className="flex items-center justify-between mb-4">
-              <button
-                onClick={() => window.history.back()}
+              <Link
+                href="/project"
                 className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Projects
-              </button>
+              </Link>
               <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getRoleBadge('active')}`}>
                 <Users className="w-4 h-4 mr-2" />
                 <span className="capitalize">Project Team</span>

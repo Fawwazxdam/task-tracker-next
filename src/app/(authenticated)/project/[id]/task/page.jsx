@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import AppLayout from "../../../../components/AppLayout";
 import Board from "../../../../components/Board";
+import Link from "next/link";
 import { ArrowLeft, Calendar, Users, CheckCircle, Clock, AlertCircle, X } from "lucide-react";
 import { useProject, useProjects, useProjectStats, useProjectMembers } from "@/lib/hooks/useProjects";
 import { useTasks } from "@/lib/hooks/useTasks";
@@ -51,7 +52,7 @@ export default function ProjectTaskPage() {
     if (apiTasks.length > 0) {
       const transformedTasks = apiTasks.map(task => ({
         id: task.id,
-        columnId: task.status,
+        status: task.status,
         content: task.title,
         description: task.description,
         priority: task.priority,
@@ -89,7 +90,7 @@ export default function ProjectTaskPage() {
       description: task.description || "",
       priority: task.priority,
       type: task.labels[0] || "feature",
-      status: task.columnId
+      status: task.status
     });
     setShowEditTaskModal(true);
   };
@@ -129,7 +130,7 @@ export default function ProjectTaskPage() {
       // Add the new task to local state
       const transformedNewTask = {
         id: newTaskData.data.id,
-        columnId: newTaskData.data.status,
+        status: newTaskData.data.status,
         content: newTaskData.data.title,
         description: newTaskData.data.description,
         priority: newTaskData.data.priority,
@@ -157,13 +158,12 @@ export default function ProjectTaskPage() {
   const handleEditTaskSubmit = async (e) => {
     e.preventDefault();
     try {
-      const apiStatus = editTask.status === 'inProgress' ? 'in_progress' : editTask.status;
       await updateTask(editingTask.id, {
         title: editTask.title,
         description: editTask.description,
         priority: editTask.priority,
         type: editTask.type,
-        status: apiStatus
+        status: editTask.status
       });
       setShowEditTaskModal(false);
       setEditingTask(null);
@@ -215,13 +215,13 @@ export default function ProjectTaskPage() {
         {project && (
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div className="flex items-center justify-between mb-4">
-              <button
-                onClick={() => window.history.back()}
+              <Link
+                href="/project"
                 className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Projects
-              </button>
+              </Link>
               <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(project.status || 'active')}`}>
                 {getStatusIcon(project.project.status || 'active')}
                 <span className="ml-2 capitalize">{(project.project.status || 'active').replace('-', ' ')}</span>
@@ -420,7 +420,7 @@ export default function ProjectTaskPage() {
                       <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getPriorityColor(selectedTask.priority)}`}>
                         {selectedTask.priority.toUpperCase()}
                       </span>
-                      <span className="text-sm text-gray-500">Status: {selectedTask.columnId}</span>
+                      <span className="text-sm text-gray-500">Status: {selectedTask.status}</span>
                     </div>
                   </div>
 

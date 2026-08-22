@@ -138,9 +138,14 @@ export const useBacklog = (projectId) => {
         throw error;
       }
     },
-    moveFromBacklog: async (taskId) => {
-      // This would typically call a move API, but for now we'll just refetch
-      mutate();
+    moveFromBacklog: async (taskId, moveData = {}) => {
+      try {
+        const result = await taskService.moveTaskFromBacklog(projectId, taskId, moveData);
+        mutate();
+        return result;
+      } catch (error) {
+        throw error;
+      }
     }
   };
 };

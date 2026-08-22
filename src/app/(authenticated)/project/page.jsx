@@ -75,7 +75,7 @@ export default function ProjectsPage() {
             <div
               key={project.id || project.uuid}
               className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all duration-200 cursor-pointer group"
-              onClick={() => window.location.href = `/project/${project.uuid || project.id}/task`}
+              onClick={() => router.push(`/project/${project.uuid || project.id}/task`)}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">

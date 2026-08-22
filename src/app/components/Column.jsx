@@ -28,7 +28,7 @@ function Column({ column, tasks, onTaskClick, onEditTask, onDeleteTask, projectM
           header: 'bg-gradient-to-r from-blue-500 to-blue-600',
           border: 'border-blue-200 dark:border-blue-700'
         };
-      case 'inProgress':
+      case 'in_progress':
         return {
           bg: 'bg-gradient-to-br from-yellow-50 to-orange-100 dark:from-yellow-900 dark:to-orange-800',
           header: 'bg-gradient-to-r from-yellow-500 to-orange-500',

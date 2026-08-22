@@ -1,105 +1,49 @@
 // src/app/dashboard/page.jsx
 "use client";
 
-import { useState, useEffect } from "react";
 import AppLayout from "@/app/components/AppLayout";
 import { useAuth } from "@/context/AuthContext";
-// import AppLayout from "../components/AppLayout";
 import { BarChart3, CheckCircle, Clock, AlertCircle } from "lucide-react";
-import apiClient from "@/lib/axios";
+import { useDashboard } from "@/lib/hooks/useDashboard";
 
 export default function Dashboard() {
   const { currentUser } = useAuth();
-  const [stats, setStats] = useState([]);
-  const [recentTasks, setRecentTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { stats: statsData, recentTasks, isLoading } = useDashboard();
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const [statsResponse, tasksResponse] = await Promise.all([
-          apiClient.get('/dashboard/stats'),
-          apiClient.get('/dashboard/recent-tasks?limit=5')
-        ]);
+  const stats = statsData
+    ? [
+        {
+          title: "Total Tasks",
+          value: statsData.total_tasks.toString(),
+          icon: BarChart3,
+          color: "bg-blue-500",
+          change: "+0%",
+        },
+        {
+          title: "Completed",
+          value: statsData.completed.toString(),
+          icon: CheckCircle,
+          color: "bg-green-500",
+          change: "+0%",
+        },
+        {
+          title: "In Progress",
+          value: statsData.in_progress.toString(),
+          icon: Clock,
+          color: "bg-yellow-500",
+          change: "+0",
+        },
+        {
+          title: "Overdue",
+          value: statsData.overdue.toString(),
+          icon: AlertCircle,
+          color: "bg-red-500",
+          change: "+0",
+        },
+      ]
+    : [];
 
-        // Transform stats data
-        const statsData = statsResponse.data.data;
-        const transformedStats = [
-          {
-            title: "Total Tasks",
-            value: statsData.total_tasks.toString(),
-            icon: BarChart3,
-            color: "bg-blue-500",
-            change: "+0%" // You can calculate this based on previous data
-          },
-          {
-            title: "Completed",
-            value: statsData.completed.toString(),
-            icon: CheckCircle,
-            color: "bg-green-500",
-            change: "+0%"
-          },
-          {
-            title: "In Progress",
-            value: statsData.in_progress.toString(),
-            icon: Clock,
-            color: "bg-yellow-500",
-            change: "+0"
-          },
-          {
-            title: "Overdue",
-            value: statsData.overdue.toString(),
-            icon: AlertCircle,
-            color: "bg-red-500",
-            change: "+0"
-          }
-        ];
-
-        setStats(transformedStats);
-        setRecentTasks(tasksResponse.data.data);
-      } catch (error) {
-        console.error('Failed to fetch dashboard data:', error);
-        // Fallback to mock data if API fails
-        setStats([
-          {
-            title: "Total Tasks",
-            value: "0",
-            icon: BarChart3,
-            color: "bg-blue-500",
-            change: "+0%"
-          },
-          {
-            title: "Completed",
-            value: "0",
-            icon: CheckCircle,
-            color: "bg-green-500",
-            change: "+0%"
-          },
-          {
-            title: "In Progress",
-            value: "0",
-            icon: Clock,
-            color: "bg-yellow-500",
-            change: "+0"
-          },
-          {
-            title: "Overdue",
-            value: "0",
-            icon: AlertCircle,
-            color: "bg-red-500",
-            change: "+0"
-          }
-        ]);
-        setRecentTasks([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDashboardData();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <AppLayout currentPage="dashboard" showNavbar={false}>
         <div className="space-y-6">

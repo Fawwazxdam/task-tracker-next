@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import AppLayout from "../../../../components/AppLayout";
 import { ArrowLeft, Calendar, Users, CheckCircle, Plus, MoveRight, X } from "lucide-react";
 import { useProject, useProjects } from "@/lib/hooks/useProjects";
@@ -91,13 +92,13 @@ export default function ProjectBacklogPage() {
         {project && (
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div className="flex items-center justify-between mb-4">
-              <button
-                onClick={() => window.history.back()}
+              <Link
+                href="/project"
                 className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Projects
-              </button>
+              </Link>
               <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(project.status || 'active')}`}>
                 {getStatusIcon(project.project.status || 'active')}
                 <span className="ml-2 capitalize">{(project.project.status || 'active').replace('-', ' ')}</span>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 // components/Sidebar.jsx
 
 import { useAuth } from "@/context/AuthContext";
@@ -80,7 +81,7 @@ function Sidebar({
           <div className="space-y-2">
             {navigation.map((item) => (
               <div key={item.name}>
-                <a
+                <Link
                   href={item.href}
                   className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                     item.current
@@ -96,7 +97,7 @@ function Sidebar({
                     }`}
                   />
                   {item.name}
-                </a>
+                </Link>
 
                 {/* Project Menu - shown after Projects */}
                 {item.name === "Projects" && currentProject && (
@@ -120,7 +121,7 @@ function Sidebar({
 
                     {projectMenuExpanded && (
                       <div className="mt-2 ml-4 space-y-1">
-                        <a
+                        <Link
                           href={`/project/${currentProject.uuid}/task`}
                           className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                             currentProjectPage === "task"
@@ -130,8 +131,8 @@ function Sidebar({
                         >
                           <CheckSquare className="mr-3 h-4 w-4 text-gray-400 group-hover:text-gray-500" />
                           Tasks
-                        </a>
-                        <a
+                        </Link>
+                        <Link
                           href={`/project/${currentProject.uuid}/backlog`}
                           className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                             currentProjectPage === "backlog"
@@ -141,8 +142,8 @@ function Sidebar({
                         >
                           <List className="mr-3 h-4 w-4 text-gray-400 group-hover:text-gray-500" />
                           Backlog
-                        </a>
-                        <a
+                        </Link>
+                        <Link
                           href={`/project/${currentProject.uuid}/members`}
                           className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                             currentProjectPage === "members"
@@ -152,7 +153,7 @@ function Sidebar({
                         >
                           <Users2 className="mr-3 h-4 w-4 text-gray-400 group-hover:text-gray-500" />
                           Members
-                        </a>
+                        </Link>
                       </div>
                     )}
                   </div>
