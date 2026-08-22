@@ -36,6 +36,8 @@ export default function ProjectTaskPage() {
     description: "",
     priority: "medium",
     type: "feature",
+    status: "todo",
+    due_date: "",
     assignee_id: ""
   });
 
@@ -57,6 +59,7 @@ export default function ProjectTaskPage() {
         description: task.description,
         priority: task.priority,
         dueDate: task.due_date,
+        story_points: task.story_points,
         assignee: task.assignee?.name || "Unassigned",
         assignee_id: task.user_id,
         labels: [task.type]
@@ -120,8 +123,9 @@ export default function ProjectTaskPage() {
         title: newTask.title,
         description: newTask.description,
         type: newTask.type,
-        status: "todo",
+        status: newTask.status,
         priority: newTask.priority,
+        due_date: newTask.due_date || null,
         user_id: newTask.assignee_id || null
       };
       
@@ -135,6 +139,7 @@ export default function ProjectTaskPage() {
         description: newTaskData.data.description,
         priority: newTaskData.data.priority,
         dueDate: newTaskData.data.due_date,
+        story_points: newTaskData.data.story_points,
         assignee: newTaskData.data.assignee?.name || "Unassigned",
         assignee_id: newTaskData.data.user_id,
         labels: [newTaskData.data.type]
@@ -148,6 +153,8 @@ export default function ProjectTaskPage() {
         description: "",
         priority: "medium",
         type: "feature",
+        status: "todo",
+        due_date: "",
         assignee_id: ""
       });
     } catch (error) {
@@ -192,18 +199,19 @@ export default function ProjectTaskPage() {
 
   const getPriorityColor = (priority) => {
     switch (priority) {
+      case 'critical': return 'bg-red-100 text-red-800 border-red-200';
       case 'high': return 'bg-red-100 text-red-800 border-red-200';
       case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'low': return 'bg-green-100 text-green-800 border-green-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
-  console.log("Project Data:", project);
-  console.log("Filtered Tasks:", filteredTasks);
 
   return (
     <AppLayout
       currentPage="projects"
+      pageTitle={project?.project?.name || 'Tasks'}
+      pageSubtitle="Manage and track project tasks"
       onAddTask={handleAddTask}
       searchTerm={searchTerm}
       onSearchChange={setSearchTerm}
@@ -222,7 +230,7 @@ export default function ProjectTaskPage() {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Projects
               </Link>
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(project.status || 'active')}`}>
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(project.project.status || 'active')}`}>
                 {getStatusIcon(project.project.status || 'active')}
                 <span className="ml-2 capitalize">{(project.project.status || 'active').replace('-', ' ')}</span>
               </span>
@@ -240,7 +248,7 @@ export default function ProjectTaskPage() {
                   </div>
                   <div className="flex items-center space-x-1">
                     <Users className="w-4 h-4" />
-                    <span>1 member</span>
+                    <span>{projectMembers.length} member{projectMembers.length !== 1 ? 's' : ''}</span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <CheckCircle className="w-4 h-4" />
@@ -276,19 +284,20 @@ export default function ProjectTaskPage() {
           onUpdateTaskStatus={updateTaskStatus}
           projectMembers={projectMembers}
           onUpdateAssignee={handleUpdateAssignee}
+          isLoading={tasksLoading}
         />
 
         {/* Add Task Modal */}
         {showAddTaskModal && project.project && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="fixed inset-0 bg-gray-900 opacity-70" onClick={() => setShowAddTaskModal(false)} />
-            <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-black">Add Task to {project.project?.name || 'Project'}</h3>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">Add Task to {project.project?.name || 'Project'}</h3>
                   <button
                     onClick={() => setShowAddTaskModal(false)}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   >
                     <span><X className="w-6 h-6" /></span>
                   </button>
@@ -297,27 +306,27 @@ export default function ProjectTaskPage() {
                 <form onSubmit={handleTaskSubmit}>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-black mb-1">
+                      <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">
                         Task Title
                       </label>
                       <input
                         type="text"
                         value={newTask.title}
                         onChange={(e) => setNewTask({...newTask, title: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="Enter task title"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-black mb-1">
+                      <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">
                         Description
                       </label>
                       <textarea
                         value={newTask.description}
                         onChange={(e) => setNewTask({...newTask, description: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         rows={3}
                         placeholder="Enter task description"
                       />
@@ -325,13 +334,13 @@ export default function ProjectTaskPage() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-black mb-1">
+                        <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">
                           Type
                         </label>
                         <select
                           value={newTask.type}
                           onChange={(e) => setNewTask({...newTask, type: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         >
                           <option value="feature">Feature</option>
                           <option value="bug">Bug</option>
@@ -341,13 +350,13 @@ export default function ProjectTaskPage() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-black mb-1">
+                        <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">
                           Priority
                         </label>
                         <select
                           value={newTask.priority}
                           onChange={(e) => setNewTask({...newTask, priority: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         >
                           <option value="low">Low</option>
                           <option value="medium">Medium</option>
@@ -357,14 +366,44 @@ export default function ProjectTaskPage() {
                       </div>
                     </div>
 
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">
+                          Status
+                        </label>
+                        <select
+                          value={newTask.status}
+                          onChange={(e) => setNewTask({...newTask, status: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        >
+                          <option value="backlog">Backlog</option>
+                          <option value="todo">To Do</option>
+                          <option value="in_progress">In Progress</option>
+                          <option value="done">Done</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">
+                          Due Date
+                        </label>
+                        <input
+                          type="date"
+                          value={newTask.due_date}
+                          onChange={(e) => setNewTask({...newTask, due_date: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
+                      </div>
+                    </div>
+
                     <div>
-                      <label className="block text-sm font-medium text-black mb-1">
+                      <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">
                         Assign To
                       </label>
                       <select
                         value={newTask.assignee_id}
                         onChange={(e) => setNewTask({...newTask, assignee_id: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       >
                         <option value="">Unassigned</option>
                         {projectMembers.map(member => (
@@ -380,7 +419,7 @@ export default function ProjectTaskPage() {
                     <button
                       type="button"
                       onClick={() => setShowAddTaskModal(false)}
-                      className="px-4 py-2 text-sm font-medium text-black bg-gray-100 rounded-lg hover:bg-gray-200"
+                      className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
                     >
                       Cancel
                     </button>
@@ -401,13 +440,13 @@ export default function ProjectTaskPage() {
         {showTaskDetailModal && selectedTask && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="fixed inset-0 bg-gray-900 opacity-70" onClick={() => setShowTaskDetailModal(false)} />
-            <div className="relative bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-black">Task Details</h3>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">Task Details</h3>
                   <button
                     onClick={() => setShowTaskDetailModal(false)}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   >
                     <span><X className="w-6 h-6" /></span>
                   </button>
@@ -415,43 +454,49 @@ export default function ProjectTaskPage() {
 
                 <div className="space-y-4">
                   <div>
-                    <h4 className="text-xl font-semibold text-gray-900 mb-2">{selectedTask.content}</h4>
+                    <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{selectedTask.content}</h4>
                     <div className="flex items-center space-x-2 mb-3">
                       <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getPriorityColor(selectedTask.priority)}`}>
                         {selectedTask.priority.toUpperCase()}
                       </span>
-                      <span className="text-sm text-gray-500">Status: {selectedTask.status}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Status: {selectedTask.status.replace('_', ' ')}</span>
                     </div>
                   </div>
 
                   {selectedTask.description && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                      <p className="text-gray-600 bg-gray-50 p-3 rounded-lg">{selectedTask.description}</p>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                      <p className="text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">{selectedTask.description}</p>
                     </div>
                   )}
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Assignee</label>
-                      <p className="text-gray-900">{selectedTask.assignee}</p>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Assignee</label>
+                      <p className="text-gray-900 dark:text-white">{selectedTask.assignee}</p>
                     </div>
                     {selectedTask.dueDate && (
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
-                        <p className="text-gray-900">{selectedTask.dueDate}</p>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Due Date</label>
+                        <p className="text-gray-900 dark:text-white">{selectedTask.dueDate}</p>
+                      </div>
+                    )}
+                    {selectedTask.story_points && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Story Points</label>
+                        <p className="text-gray-900 dark:text-white">{selectedTask.story_points}</p>
                       </div>
                     )}
                   </div>
 
                   {selectedTask.labels && selectedTask.labels.length > 0 && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Labels</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Labels</label>
                       <div className="flex flex-wrap gap-2">
                         {selectedTask.labels.map((label, index) => (
                           <span
                             key={index}
-                            className="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-md"
+                            className="px-2 py-1 text-xs bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-md"
                           >
                             {label}
                           </span>
@@ -468,7 +513,7 @@ export default function ProjectTaskPage() {
                         setShowTaskDetailModal(false);
                         handleEditTask(selectedTask);
                       }}
-                      className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100"
+                      className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50"
                     >
                       Edit
                     </button>
@@ -477,14 +522,14 @@ export default function ProjectTaskPage() {
                         setShowTaskDetailModal(false);
                         handleDeleteTask(selectedTask);
                       }}
-                      className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100"
+                      className="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50"
                     >
                       Delete
                     </button>
                   </div>
                   <button
                     onClick={() => setShowTaskDetailModal(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
+                    className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
                   >
                     Close
                   </button>
@@ -498,13 +543,13 @@ export default function ProjectTaskPage() {
         {showEditTaskModal && editingTask && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="fixed inset-0 bg-gray-900 opacity-70" onClick={() => setShowEditTaskModal(false)} />
-            <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-black">Edit Task</h3>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">Edit Task</h3>
                   <button
                     onClick={() => setShowEditTaskModal(false)}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   >
                     <span><X className="w-6 h-6" /></span>
                   </button>
@@ -513,27 +558,27 @@ export default function ProjectTaskPage() {
                 <form onSubmit={handleEditTaskSubmit}>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-black mb-1">
+                      <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">
                         Task Title
                       </label>
                       <input
                         type="text"
                         value={editTask.title}
                         onChange={(e) => setEditTask({...editTask, title: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="Enter task title"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-black mb-1">
+                      <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">
                         Description
                       </label>
                       <textarea
                         value={editTask.description}
                         onChange={(e) => setEditTask({...editTask, description: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         rows={3}
                         placeholder="Enter task description"
                       />
@@ -541,13 +586,13 @@ export default function ProjectTaskPage() {
 
                     <div className="grid grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-black mb-1">
+                        <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">
                           Type
                         </label>
                         <select
                           value={editTask.type}
                           onChange={(e) => setEditTask({...editTask, type: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         >
                           <option value="feature">Feature</option>
                           <option value="bug">Bug</option>
@@ -557,13 +602,13 @@ export default function ProjectTaskPage() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-black mb-1">
+                        <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">
                           Priority
                         </label>
                         <select
                           value={editTask.priority}
                           onChange={(e) => setEditTask({...editTask, priority: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         >
                           <option value="low">Low</option>
                           <option value="medium">Medium</option>
@@ -573,14 +618,15 @@ export default function ProjectTaskPage() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-black mb-1">
+                        <label className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">
                           Status
                         </label>
                         <select
                           value={editTask.status}
                           onChange={(e) => setEditTask({...editTask, status: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         >
+                          <option value="backlog">Backlog</option>
                           <option value="todo">To Do</option>
                           <option value="in_progress">In Progress</option>
                           <option value="done">Done</option>
@@ -593,7 +639,7 @@ export default function ProjectTaskPage() {
                     <button
                       type="button"
                       onClick={() => setShowEditTaskModal(false)}
-                      className="px-4 py-2 text-sm font-medium text-black bg-gray-100 rounded-lg hover:bg-gray-200"
+                      className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
                     >
                       Cancel
                     </button>

@@ -83,6 +83,8 @@ export default function ProjectBacklogPage() {
   return (
     <AppLayout
       currentPage="projects"
+      pageTitle={project?.project?.name || 'Backlog'}
+      pageSubtitle="Manage your project backlog"
       onAddBacklogTask={handleAddTask}
       currentProject={project ? project.project : null}
       currentProjectPage="backlog"

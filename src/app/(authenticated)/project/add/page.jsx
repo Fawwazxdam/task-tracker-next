@@ -87,7 +87,7 @@ export default function AddProjectPage() {
   };
 
   return (
-    <AppLayout currentPage="projects" showNavbar={false}>
+    <AppLayout currentPage="projects" pageTitle="Add Project" pageSubtitle="Create a new project">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-100 mb-8">
@@ -104,11 +104,6 @@ export default function AddProjectPage() {
                 <FolderPlus className="w-5 h-5 text-white" />
               </div>
             </div>
-          </div>
-
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Project</h1>
-            <p className="text-gray-600 text-lg">Set up a new project to organize your tasks and collaborate with your team.</p>
           </div>
 
           {/* Quick Stats */}

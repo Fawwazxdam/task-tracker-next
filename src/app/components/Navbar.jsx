@@ -9,7 +9,7 @@ import {
   Menu
 } from "lucide-react";
 
-function Navbar({ onAddTask, onAddBacklogTask, searchTerm, onSearchChange, sidebarOpen, setSidebarOpen }) {
+function Navbar({ pageTitle, pageSubtitle, onAddTask, onAddBacklogTask, searchTerm, onSearchChange, sidebarOpen, setSidebarOpen }) {
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <div className="px-4 sm:px-6 lg:px-8">
@@ -22,25 +22,27 @@ function Navbar({ onAddTask, onAddBacklogTask, searchTerm, onSearchChange, sideb
               <Menu className="w-6 h-6" />
             </button>
             <div className="ml-4 lg:ml-0">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Project Tasks</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Manage your project workflow</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{pageTitle || 'Project Tasks'}</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{pageSubtitle || 'Manage your project workflow'}</p>
             </div>
           </div>
 
           <div className="flex items-center space-x-4">
             {/* Search */}
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+            {searchTerm !== undefined && (
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search tasks..."
+                  value={searchTerm}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm text-gray-900 dark:text-white"
+                />
               </div>
-              <input
-                type="text"
-                placeholder="Search tasks..."
-                value={searchTerm}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm text-gray-900 dark:text-white"
-              />
-            </div>
+            )}
 
             {/* Filter */}
             <button className="p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200">

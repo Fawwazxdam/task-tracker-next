@@ -45,7 +45,7 @@ export default function Dashboard() {
 
   if (isLoading) {
     return (
-      <AppLayout currentPage="dashboard" showNavbar={false}>
+      <AppLayout currentPage="dashboard" pageTitle="Dashboard" pageSubtitle="Overview of your projects and tasks">
         <div className="space-y-6">
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div className="animate-pulse">
@@ -70,7 +70,7 @@ export default function Dashboard() {
   }
 
   return (
-    <AppLayout currentPage="dashboard" showNavbar={false}>
+    <AppLayout currentPage="dashboard" pageTitle="Dashboard" pageSubtitle="Overview of your projects and tasks">
       <div className="space-y-6">
         {/* Welcome Section */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">

@@ -37,13 +37,8 @@ export default function SettingsPage() {
   };
 
   return (
-    <AppLayout currentPage="settings" showNavbar={false}>
+    <AppLayout currentPage="settings" pageTitle="Settings" pageSubtitle="Manage your account and application preferences">
       <div className="space-y-6">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-          <p className="mt-2 text-gray-600">Manage your account and application preferences</p>
-        </div>
-
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8 px-6" aria-label="Tabs">

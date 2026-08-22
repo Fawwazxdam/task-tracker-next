@@ -5,7 +5,7 @@ import { useState } from "react";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 
-function AppLayout({ children, currentPage = "tasks", showNavbar = true, onAddTask, onAddBacklogTask, searchTerm, onSearchChange, currentProject = null, currentProjectPage = null }) {
+function AppLayout({ children, currentPage = "tasks", pageTitle, pageSubtitle, onAddTask, onAddBacklogTask, searchTerm, onSearchChange, currentProject = null, currentProjectPage = null }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -20,16 +20,16 @@ function AppLayout({ children, currentPage = "tasks", showNavbar = true, onAddTa
         />
 
         <div className="flex-1 flex flex-col min-w-0">
-          {showNavbar && (
-            <Navbar
-              onAddTask={onAddTask}
-              onAddBacklogTask={onAddBacklogTask}
-              searchTerm={searchTerm}
-              onSearchChange={onSearchChange}
-              sidebarOpen={sidebarOpen}
-              setSidebarOpen={setSidebarOpen}
-            />
-          )}
+          <Navbar
+            pageTitle={pageTitle}
+            pageSubtitle={pageSubtitle}
+            onAddTask={onAddTask}
+            onAddBacklogTask={onAddBacklogTask}
+            searchTerm={searchTerm}
+            onSearchChange={onSearchChange}
+            sidebarOpen={sidebarOpen}
+            setSidebarOpen={setSidebarOpen}
+          />
 
           <main className="flex-1 p-6">
             {children}

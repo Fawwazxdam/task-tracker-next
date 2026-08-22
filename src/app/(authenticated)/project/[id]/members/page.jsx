@@ -74,7 +74,7 @@ export default function ProjectMembersPage() {
 
   if (projectLoading) {
     return (
-      <AppLayout currentPage="projects" currentProjectPage="members">
+      <AppLayout currentPage="projects" pageTitle="Members" pageSubtitle="Manage project team members" currentProjectPage="members">
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
         </div>
@@ -85,6 +85,8 @@ export default function ProjectMembersPage() {
   return (
     <AppLayout
       currentPage="projects"
+      pageTitle={project?.project?.name || 'Members'}
+      pageSubtitle="Manage project team members"
       currentProject={project ? project.project : null}
       currentProjectPage="members"
     >

@@ -38,14 +38,10 @@ export default function ProjectsPage() {
 
 
   return (
-    <AppLayout currentPage="projects" showNavbar={false}>
+    <AppLayout currentPage="projects" pageTitle="Projects" pageSubtitle="Manage your project portfolio">
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
-            <p className="text-gray-600">Manage your project portfolio</p>
-          </div>
+        <div className="flex items-center justify-end">
           <button
             onClick={() => router.push('/project/add')}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"

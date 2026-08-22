@@ -18,7 +18,7 @@ const COLUMNS = [
   { id: "done", title: "Done" },
 ];
 
-function Board({ tasks, onTasksChange, onTaskClick, onEditTask, onDeleteTask, onUpdateTaskStatus, projectMembers, onUpdateAssignee }) {
+function Board({ tasks, onTasksChange, onTaskClick, onEditTask, onDeleteTask, onUpdateTaskStatus, projectMembers, onUpdateAssignee, isLoading }) {
   const [activeTask, setActiveTask] = useState(null);
 
   const sensors = useSensors(
@@ -28,6 +28,40 @@ function Board({ tasks, onTasksChange, onTaskClick, onEditTask, onDeleteTask, on
       },
     })
   );
+
+  if (isLoading) {
+    return (
+      <div className="flex gap-6 overflow-x-auto pb-6 px-2">
+        {COLUMNS.map((col) => (
+          <div key={col.id} className="w-[380px] min-h-[600px] bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 animate-pulse" />
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded-xl mb-3 animate-pulse" />
+            ))}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (tasks.length === 0) {
+    return (
+      <div className="flex gap-6 overflow-x-auto pb-6 px-2">
+        {COLUMNS.map((col) => (
+          <Column
+            key={col.id}
+            column={col}
+            tasks={[]}
+            onTaskClick={onTaskClick}
+            onEditTask={onEditTask}
+            onDeleteTask={onDeleteTask}
+            projectMembers={projectMembers}
+            onUpdateAssignee={onUpdateAssignee}
+          />
+        ))}
+      </div>
+    );
+  }
 
   function onDragStart(event) {
     if (event.active.data.current?.type === "Task") {

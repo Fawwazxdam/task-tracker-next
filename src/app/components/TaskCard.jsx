@@ -5,7 +5,7 @@
 import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Calendar, User, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { Calendar, User, MoreHorizontal, Edit, Trash2, Hash } from "lucide-react";
 
 function TaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onUpdateAssignee, projectMembers }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -42,6 +42,7 @@ function TaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onUpdateAssigne
 
   const getPriorityColor = (priority) => {
     switch (priority) {
+      case 'critical': return 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-700';
       case 'high': return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300 border-red-200 dark:border-red-700';
       case 'medium': return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-700';
       case 'low': return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 border-green-200 dark:border-green-700';
@@ -147,6 +148,12 @@ function TaskCard({ task, onTaskClick, onEditTask, onDeleteTask, onUpdateAssigne
             <div className="flex items-center space-x-1">
               <Calendar className="w-3 h-3" />
               <span>{taskData.dueDate}</span>
+            </div>
+          )}
+          {task.story_points && (
+            <div className="flex items-center space-x-1">
+              <Hash className="w-3 h-3" />
+              <span>{task.story_points} pts</span>
             </div>
           )}
           <div className="flex items-center space-x-1">
